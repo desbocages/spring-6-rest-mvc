@@ -4,11 +4,10 @@ import guru.springframework.spring6webmvc.domain.Beer;
 import guru.springframework.spring6webmvc.services.BeerService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -28,5 +27,34 @@ public class BeerController {
     public Beer getBeerById(@PathVariable("beerId") UUID id){
         log.debug("Collecting beer in Controller with id:"+id);
         return beerService.getBeerById(id);
+    }
+
+    @DeleteMapping("/{beerId}")
+    public ResponseEntity deleteBeerById(@PathVariable("beerId") UUID id){
+        log.debug("Deleting beer in Controller with id:"+id);
+
+        beerService.deleteById(id);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
+    @PostMapping
+    public ResponseEntity saveNewBeer(@RequestBody Beer beer){
+        Beer b = beerService.saveNewBeer(beer);
+        return ResponseEntity.status(201)
+                .header("Location","/api/v1/beer/"+b.getId())
+                .body(b);//.build();
+    }
+
+    @PutMapping("{bId}")
+    public ResponseEntity updateBeerById(@PathVariable("bId")UUID beerId,@RequestBody Beer beer){
+        Beer b = beerService.getBeerById(beerId);
+        if(b!=null){
+            beerService.updateBeer(beer);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                    .header("Location","/api/v1/beer/"+b.getId())
+                    .body(b);
+        }
+        // simple code provided to evolve with the teacher. No exception handling at this stage.
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

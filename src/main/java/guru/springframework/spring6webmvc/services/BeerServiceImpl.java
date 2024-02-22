@@ -66,4 +66,46 @@ public class BeerServiceImpl implements BeerService {
         log.debug("The method getBeerById has been called with id: " + id);
         return beerMap.get(id);
     }
+
+    @Override
+    public Beer saveNewBeer(Beer beer) {
+        Objects.requireNonNull(beer,"The beer to save should not be null.");
+        Beer savedBeer = Beer.builder()
+                .id(UUID.randomUUID())
+                .creationDate(LocalDateTime.now())
+                .updateDate(LocalDateTime.now())
+                .version(1)
+                .beerName(beer.getBeerName())
+                .beerStyle(beer.getBeerStyle())
+                .quantityOnHand(beer.getQuantityOnHand())
+                .price(beer.getPrice())
+                .upc("1234")
+                .build();
+
+        beerMap.put(savedBeer.getId(), savedBeer);
+        return savedBeer;
+    }
+
+    @Override
+    public Beer updateBeer(Beer beer){
+        Beer former = getBeerById(beer.getId());
+        Beer savedBeer = Beer.builder()
+                .id(beer.getId())
+                .creationDate(former.getCreationDate())
+                .updateDate(LocalDateTime.now())
+                .version(former.getVersion()+1)
+                .beerName(beer.getBeerName())
+                .beerStyle(beer.getBeerStyle())
+                .quantityOnHand(beer.getQuantityOnHand())
+                .price(beer.getPrice())
+                .upc(beer.getUpc())
+                .build();
+        beerMap.put(savedBeer.getId(), savedBeer);
+        return savedBeer;
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        beerMap.remove(id);
+    }
 }
