@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -61,6 +62,12 @@ public class CustomerController {
     @DeleteMapping("{cId}")
     public ResponseEntity deleteCustomerById(@PathVariable("cId") UUID id){
         customerService.deleteCustomer(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PatchMapping("{cId}")
+    public ResponseEntity patchCustomerById(@PathVariable("cId") UUID customerId,@RequestBody Customer customer){
+        customerService.patchCustomerById(customerId,customer);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

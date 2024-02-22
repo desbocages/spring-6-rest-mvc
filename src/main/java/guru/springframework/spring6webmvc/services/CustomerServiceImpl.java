@@ -3,6 +3,7 @@ package guru.springframework.spring6webmvc.services;
 import guru.springframework.spring6webmvc.domain.Customer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -82,5 +83,17 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public void deleteCustomer(UUID id) {
         customerMap.remove(id);
+    }
+
+    @Override
+    public void patchCustomerById(UUID customerId, Customer customer) {
+        Customer existingCustomer = customerMap.get(customerId);
+        if(existingCustomer!=null){
+            if(StringUtils.hasText(customer.getCustomerName())){
+                existingCustomer.setCustomerName(customer.getCustomerName());
+            }
+            existingCustomer.setVersion(existingCustomer.getVersion()+1);
+            //updateBeer(existingBeer);
+        }
     }
 }

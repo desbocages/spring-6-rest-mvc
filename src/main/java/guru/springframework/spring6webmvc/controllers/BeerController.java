@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -45,16 +46,9 @@ public class BeerController {
                 .body(b);//.build();
     }
 
-    @PutMapping("{bId}")
-    public ResponseEntity updateBeerById(@PathVariable("bId")UUID beerId,@RequestBody Beer beer){
-        Beer b = beerService.getBeerById(beerId);
-        if(b!=null){
-            beerService.updateBeer(beer);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                    .header("Location","/api/v1/beer/"+b.getId())
-                    .body(b);
-        }
-        // simple code provided to evolve with the teacher. No exception handling at this stage.
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
+    @PatchMapping("{bId}")
+   public ResponseEntity patchBeer(@PathVariable("bId") UUID bId, @RequestBody Beer beer){
+        beerService.patchBeerById(bId,beer);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+   }
 }
