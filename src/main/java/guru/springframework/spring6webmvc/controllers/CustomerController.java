@@ -14,16 +14,18 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/customer")
 @Slf4j
 public class CustomerController {
+
+    public static final String CUSTOMER_BASE_PATH = "/api/v1/customer/";
+    public static final String CUSTOMER_VAR_PATH_ID =CUSTOMER_BASE_PATH+ "{cId}";
     private final CustomerService customerService;
     public CustomerController(CustomerService customerService) {
         log.debug("initializing the customer service component...");
         this.customerService = customerService;
     }
 
-    @RequestMapping(value = "/{cId}",method = RequestMethod.GET)
+    @GetMapping(CUSTOMER_VAR_PATH_ID)
     public Customer getById(@PathVariable("cId") UUID id){
         log.debug("Starting collecting customer by id ["+id.toString()+"]...");
         Customer c = customerService.getById(id);
@@ -31,7 +33,7 @@ public class CustomerController {
         return c;
     }
 
-    @RequestMapping("/")
+    @GetMapping(CUSTOMER_BASE_PATH)
     public List<Customer> listCustomers(){
         log.debug("Customers list has been demanded...");
         List<Customer> customers = customerService.listCustomers();
@@ -41,7 +43,7 @@ public class CustomerController {
             log.debug("No customer has been found.");
         return customers;
     }
-    @PostMapping
+    @PostMapping(CUSTOMER_BASE_PATH)
     public ResponseEntity saveNewCustomer(@RequestBody Customer customer){
         Customer savedCustomer = customerService.saveNewCustomer(customer);
         HttpHeaders headers = new HttpHeaders();
@@ -49,23 +51,24 @@ public class CustomerController {
         return new ResponseEntity(headers,HttpStatus.CREATED);
     }
 
-    @PutMapping("{cId}")
+    @PutMapping(CUSTOMER_VAR_PATH_ID)
     public ResponseEntity updateCustomer(@PathVariable("cId") UUID customerId,@RequestBody Customer customer){
-        Customer savedCustomer = customerService.getById(customerId);
-        savedCustomer.setCustomerName(customer.getCustomerName());
-        savedCustomer.setVersion(customer.getVersion());
-        Customer updated = customerService.updateCustomer(savedCustomer);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Location","/api/v1/customer/"+savedCustomer.getId());
-        return new ResponseEntity(headers,HttpStatus.NO_CONTENT);
+
+        Customer updated = customerService.updateCustomer(customerId, customer);
+        if(updated!=null){
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Location","/api/v1/customer/"+updated.getId());
+            return new ResponseEntity(headers,HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
-    @DeleteMapping("{cId}")
+    @DeleteMapping(CUSTOMER_VAR_PATH_ID)
     public ResponseEntity deleteCustomerById(@PathVariable("cId") UUID id){
         customerService.deleteCustomer(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PatchMapping("{cId}")
+    @PatchMapping(CUSTOMER_VAR_PATH_ID)
     public ResponseEntity patchCustomerById(@PathVariable("cId") UUID customerId,@RequestBody Customer customer){
         customerService.patchCustomerById(customerId,customer);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

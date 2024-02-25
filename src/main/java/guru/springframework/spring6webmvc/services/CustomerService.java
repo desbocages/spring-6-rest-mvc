@@ -14,7 +14,7 @@ public interface CustomerService {
 
     public Customer saveNewCustomer(Customer customer);
 
-    Customer updateCustomer(Customer savedCustomer);
+    Customer updateCustomer(UUID id,Customer savedCustomer);
 
     void deleteCustomer(UUID id);
 

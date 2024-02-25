@@ -4,6 +4,7 @@ import guru.springframework.spring6webmvc.domain.Customer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -67,19 +68,25 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Customer updateCustomer(Customer customer) {
-        Customer savedCustomer = Customer.builder()
-                .id(customer.getId())
-                .lastModifiedDate(LocalDateTime.now())
-                .createdDate(customer.getCreatedDate())
-                .version(customer.getVersion()+1)
-                .customerName(customer.getCustomerName())
-                .build();
-        log.debug("New Customer's version: "+savedCustomer.getVersion());
-        customerMap.put(savedCustomer.getId(),savedCustomer);
-        return savedCustomer;
+    public Customer updateCustomer(UUID id,Customer customer) {
+        Customer savedCustomer = getById(id);
+        if(savedCustomer!=null){
+            savedCustomer = Customer.builder()
+                    .id(customer.getId())
+                    .customerName(customer.getCustomerName())
+                    .lastModifiedDate(LocalDateTime.now())
+                    .createdDate(customer.getCreatedDate())
+                    .version(customer.getVersion()+1)
+                    .customerName(customer.getCustomerName())
+                    .build();
+            log.debug("New Customer's version: "+savedCustomer.getVersion());
+            customerMap.put(savedCustomer.getId(),savedCustomer);
+            return savedCustomer;
+        }
+        return null;
     }
 
+    @DeleteMapping("{id}")
     @Override
     public void deleteCustomer(UUID id) {
         customerMap.remove(id);

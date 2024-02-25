@@ -88,8 +88,8 @@ public class BeerServiceImpl implements BeerService {
     }
 
     @Override
-    public Beer updateBeer(Beer beer){
-        Beer former = getBeerById(beer.getId());
+    public Beer updateBeer(UUID id,Beer beer){
+        Beer former = getBeerById(id);
         Beer savedBeer = Beer.builder()
                 .id(beer.getId())
                 .creationDate(former.getCreationDate())
