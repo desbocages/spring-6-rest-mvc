@@ -44,14 +44,14 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Customer getById(UUID id) {
+    public Optional<Customer> getById(UUID id) {
         log.debug("The method getById has been called on Customer Service component  with id: " + id);
-        return customerMap.get(id);
+        return Optional.of(customerMap.get(id));
     }
 
     @Override
-    public List<Customer> listCustomers() {
-        return new ArrayList<>(customerMap.values());
+    public Optional<List<Customer>> listCustomers() {
+        return Optional.of(new ArrayList<>(customerMap.values()));
     }
 
     @Override
@@ -69,7 +69,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Customer updateCustomer(UUID id,Customer customer) {
-        Customer savedCustomer = getById(id);
+        Customer savedCustomer = customerMap.get(id);
         if(savedCustomer!=null){
             savedCustomer = Customer.builder()
                     .id(customer.getId())

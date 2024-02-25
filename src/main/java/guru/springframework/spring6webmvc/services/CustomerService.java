@@ -5,14 +5,15 @@ import guru.springframework.spring6webmvc.domain.Customer;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 
 public interface CustomerService {
-    public Customer getById(UUID id);
-    public List<Customer> listCustomers();
+     Optional<Customer> getById(UUID id);
+     Optional<List<Customer>> listCustomers();
 
-    public Customer saveNewCustomer(Customer customer);
+     Customer saveNewCustomer(Customer customer);
 
     Customer updateCustomer(UUID id,Customer savedCustomer);
 

@@ -1,16 +1,12 @@
 package guru.springframework.spring6webmvc.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import guru.springframework.spring6webmvc.domain.Beer;
 import guru.springframework.spring6webmvc.domain.Customer;
-import guru.springframework.spring6webmvc.services.BeerService;
 import guru.springframework.spring6webmvc.services.CustomerService;
 import guru.springframework.spring6webmvc.services.CustomerServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.BDDMockito;
 import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -19,9 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static guru.springframework.spring6webmvc.controllers.CustomerController.CUSTOMER_BASE_PATH;
 import static guru.springframework.spring6webmvc.controllers.CustomerController.CUSTOMER_VAR_PATH_ID;
@@ -56,13 +50,20 @@ public class CustomerControllerMVCTest {
 
     @Test
     void testGetCustomerById() throws Exception {
-        Customer mockCustomer = customerServiceImpl.listCustomers().get(0);
-        given(customerService.getById(mockCustomer.getId())).willReturn(mockCustomer);
+        Customer mockCustomer = getList().get(0);
+        given(customerService.getById(mockCustomer.getId())).willReturn(Optional.of(mockCustomer));
         mockMvc.perform(get(CUSTOMER_VAR_PATH_ID, mockCustomer.getId().toString())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.customerName", is(mockCustomer.getCustomerName())));
+    }
+
+    @Test
+    void testThrowCustomExceptionWithMockito() throws Exception {
+        given(customerService.getById(any(UUID.class))).willThrow(new NotfoundException());
+        mockMvc.perform(get(CUSTOMER_VAR_PATH_ID,UUID.randomUUID()))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -72,17 +73,21 @@ public class CustomerControllerMVCTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", is(customerServiceImpl.listCustomers().size())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", is(getList().size())));
 
+    }
+
+    List<Customer> getList(){
+        return customerServiceImpl.listCustomers().get();
     }
 
     @Test
     void testCreateNewCustomer() throws Exception {
-        Customer aux = customerServiceImpl.listCustomers().get(0);
+        Customer aux = getList().get(0);
         aux.setVersion(null);
         aux.setId(null);
 
-        given(customerService.saveNewCustomer(any(Customer.class))).willReturn(customerServiceImpl.listCustomers().get(1));
+        given(customerService.saveNewCustomer(any(Customer.class))).willReturn(getList().get(1));
 
         mockMvc.perform(post(CUSTOMER_BASE_PATH)
                         .accept(MediaType.APPLICATION_JSON)
@@ -94,7 +99,7 @@ public class CustomerControllerMVCTest {
 
     @Test
     void testUpdateCustomerById() throws Exception {
-        Customer customer = customerServiceImpl.listCustomers().get(0);
+        Customer customer = getList().get(0);
         mockMvc.perform(put(CUSTOMER_VAR_PATH_ID, customer.getId())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -105,7 +110,7 @@ public class CustomerControllerMVCTest {
 
     @Test
     void testDeleteCustomerById() throws Exception {
-        Customer customer = customerServiceImpl.listCustomers().get(0);
+        Customer customer = getList().get(0);
         mockMvc.perform(delete(CUSTOMER_VAR_PATH_ID, customer.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
@@ -116,7 +121,7 @@ public class CustomerControllerMVCTest {
 
     @Test
     void testPatchCustomer() throws Exception {
-        Customer aux = customerServiceImpl.listCustomers().get(0);
+        Customer aux = getList().get(0);
         Map<String,String> params = new HashMap<>();
         params.put("customerName","New Customer");
         mockMvc.perform(patch(CUSTOMER_VAR_PATH_ID,aux.getId())

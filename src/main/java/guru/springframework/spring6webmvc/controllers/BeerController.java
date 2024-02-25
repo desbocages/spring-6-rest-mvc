@@ -6,8 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,12 +21,12 @@ public class BeerController {
 
     @GetMapping(BEER_BASE_PATH)
     public List<Beer> listBeers(){
-        return beerService.listBeers();
+        return beerService.listBeers().orElseThrow(NotfoundException::new);
     }
     @GetMapping(BEER_VAR_PATH_ID)
     public Beer getBeerById(@PathVariable("beerId") UUID id){
         log.debug("Collecting beer in Controller with id:"+id);
-        return beerService.getBeerById(id);
+        return beerService.getBeerById(id).orElseThrow(NotfoundException::new);
     }
 
     @DeleteMapping(BEER_VAR_PATH_ID)

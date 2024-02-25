@@ -6,10 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,18 +23,20 @@ public class CustomerController {
         this.customerService = customerService;
     }
 
+
+
     @GetMapping(CUSTOMER_VAR_PATH_ID)
     public Customer getById(@PathVariable("cId") UUID id){
         log.debug("Starting collecting customer by id ["+id.toString()+"]...");
-        Customer c = customerService.getById(id);
-        log.debug("Collected customer with id ["+id.toString()+"]..."+c+"");
+        Customer c = customerService.getById(id).orElseThrow(NotfoundException::new);
+        log.debug("Collected customer with id ["+ id +"]..."+c);
         return c;
     }
 
     @GetMapping(CUSTOMER_BASE_PATH)
     public List<Customer> listCustomers(){
         log.debug("Customers list has been demanded...");
-        List<Customer> customers = customerService.listCustomers();
+        List<Customer> customers = customerService.listCustomers().orElseThrow(NotfoundException::new);
         if(customers!=null && !customers.isEmpty())
         log.debug("Returned a list of customers...Size: "+customers.size());
         else

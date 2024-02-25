@@ -56,16 +56,16 @@ public class BeerServiceImpl implements BeerService {
     }
 
     @Override
-    public List<Beer> listBeers() {
-        return new ArrayList<>(beerMap.values());
+    public Optional<List<Beer>> listBeers() {
+        return Optional.of(new ArrayList<>(beerMap.values()));
     }
 
 
     @Override
-    public Beer getBeerById(UUID id) {
+    public Optional<Beer> getBeerById(UUID id) {
 
         log.debug("The method getBeerById has been called with id: " + id);
-        return beerMap.get(id);
+        return Optional.ofNullable(beerMap.get(id));
     }
 
     @Override
@@ -88,8 +88,8 @@ public class BeerServiceImpl implements BeerService {
     }
 
     @Override
-    public Beer updateBeer(UUID id,Beer beer){
-        Beer former = getBeerById(id);
+    public void updateBeer(UUID id, Beer beer){
+        Beer former = beerMap.get(id);
         Beer savedBeer = Beer.builder()
                 .id(beer.getId())
                 .creationDate(former.getCreationDate())
@@ -102,7 +102,6 @@ public class BeerServiceImpl implements BeerService {
                 .upc(beer.getUpc())
                 .build();
         beerMap.put(savedBeer.getId(), savedBeer);
-        return savedBeer;
     }
 
     @Override
