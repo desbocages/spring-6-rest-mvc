@@ -1,6 +1,6 @@
 package guru.springframework.spring6webmvc.services;
 
-import guru.springframework.spring6webmvc.domain.Customer;
+import guru.springframework.spring6webmvc.domain.CustomerDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -13,25 +13,25 @@ import java.util.*;
 @Slf4j
 public class CustomerServiceImpl implements CustomerService {
 
-    private final Map<UUID,Customer> customerMap;
+    private final Map<UUID, CustomerDTO> customerMap;
     public CustomerServiceImpl() {
         log.debug("Initializing the CustomerServiceImpl class...");
         customerMap = new HashMap<>();
-        Customer c1 = Customer.builder()
+        CustomerDTO c1 = CustomerDTO.builder()
                 .customerName("Yakam")
                 .id(UUID.randomUUID())
                 .version(1)
                 .createdDate(LocalDateTime.now())
                 .lastModifiedDate(LocalDateTime.now())
                 .build();
-        Customer c2 = Customer.builder()
+        CustomerDTO c2 = CustomerDTO.builder()
                 .customerName("Yale")
                 .id(UUID.randomUUID())
                 .version(1)
                 .createdDate(LocalDateTime.now())
                 .lastModifiedDate(LocalDateTime.now())
                 .build();
-        Customer c3 = Customer.builder()
+        CustomerDTO c3 = CustomerDTO.builder()
                 .customerName("Yakoubou")
                 .id(UUID.randomUUID())
                 .version(1)
@@ -44,19 +44,19 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Optional<Customer> getById(UUID id) {
+    public Optional<CustomerDTO> getById(UUID id) {
         log.debug("The method getById has been called on Customer Service component  with id: " + id);
         return Optional.of(customerMap.get(id));
     }
 
     @Override
-    public Optional<List<Customer>> listCustomers() {
-        return Optional.of(new ArrayList<>(customerMap.values()));
+    public List<CustomerDTO> listCustomers() {
+        return new ArrayList<>(customerMap.values());
     }
 
     @Override
-    public Customer saveNewCustomer(Customer customer) {
-        Customer savedCustomer = Customer.builder()
+    public CustomerDTO saveNewCustomer(CustomerDTO customer) {
+        CustomerDTO savedCustomer = CustomerDTO.builder()
                 .id(UUID.randomUUID())
                 .lastModifiedDate(LocalDateTime.now())
                 .createdDate(LocalDateTime.now())
@@ -68,10 +68,10 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Customer updateCustomer(UUID id,Customer customer) {
-        Customer savedCustomer = customerMap.get(id);
+    public Optional<CustomerDTO> updateCustomer(UUID id, CustomerDTO customer) {
+        CustomerDTO savedCustomer = customerMap.get(id);
         if(savedCustomer!=null){
-            savedCustomer = Customer.builder()
+            savedCustomer = CustomerDTO.builder()
                     .id(customer.getId())
                     .customerName(customer.getCustomerName())
                     .lastModifiedDate(LocalDateTime.now())
@@ -81,9 +81,9 @@ public class CustomerServiceImpl implements CustomerService {
                     .build();
             log.debug("New Customer's version: "+savedCustomer.getVersion());
             customerMap.put(savedCustomer.getId(),savedCustomer);
-            return savedCustomer;
+            return Optional.of(savedCustomer);
         }
-        return null;
+        return Optional.empty();
     }
 
     @DeleteMapping("{id}")
@@ -93,8 +93,8 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void patchCustomerById(UUID customerId, Customer customer) {
-        Customer existingCustomer = customerMap.get(customerId);
+    public void patchCustomerById(UUID customerId, CustomerDTO customer) {
+        CustomerDTO existingCustomer = customerMap.get(customerId);
         if(existingCustomer!=null){
             if(StringUtils.hasText(customer.getCustomerName())){
                 existingCustomer.setCustomerName(customer.getCustomerName());

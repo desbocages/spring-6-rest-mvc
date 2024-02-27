@@ -1,8 +1,6 @@
 package guru.springframework.spring6webmvc.services;
 
-import guru.springframework.spring6webmvc.domain.Beer;
-import guru.springframework.spring6webmvc.domain.Customer;
-import org.springframework.stereotype.Service;
+import guru.springframework.spring6webmvc.domain.CustomerDTO;
 
 import java.util.List;
 import java.util.Optional;
@@ -10,14 +8,14 @@ import java.util.UUID;
 
 
 public interface CustomerService {
-     Optional<Customer> getById(UUID id);
-     Optional<List<Customer>> listCustomers();
+     Optional<CustomerDTO> getById(UUID id);
+     List<CustomerDTO> listCustomers();
 
-     Customer saveNewCustomer(Customer customer);
+     CustomerDTO saveNewCustomer(CustomerDTO customer);
 
-    Customer updateCustomer(UUID id,Customer savedCustomer);
+    Optional<CustomerDTO> updateCustomer(UUID id, CustomerDTO savedCustomer);
 
     void deleteCustomer(UUID id);
 
-    void patchCustomerById(UUID customerId, Customer customer);
+    void patchCustomerById(UUID customerId, CustomerDTO customer);
 }

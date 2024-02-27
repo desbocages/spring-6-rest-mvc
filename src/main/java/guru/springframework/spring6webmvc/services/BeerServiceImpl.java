@@ -1,6 +1,6 @@
 package guru.springframework.spring6webmvc.services;
 
-import guru.springframework.spring6webmvc.domain.Beer;
+import guru.springframework.spring6webmvc.domain.BeerDTO;
 import guru.springframework.spring6webmvc.domain.BeerStyle;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,11 +13,11 @@ import java.util.*;
 @Service
 @Slf4j
 public class BeerServiceImpl implements BeerService {
-    Map<UUID, Beer> beerMap;
+    Map<UUID, BeerDTO> beerMap;
 
     public BeerServiceImpl() {
         beerMap = new HashMap<>();
-        Beer beer1 = Beer.builder()
+        BeerDTO beer1 = BeerDTO.builder()
                 .id(UUID.randomUUID())
                 .beerName("King")
                 .beerStyle(BeerStyle.MALTED)
@@ -28,7 +28,7 @@ public class BeerServiceImpl implements BeerService {
                 .creationDate(LocalDateTime.now())
                 .updateDate(LocalDateTime.now())
                 .build();
-        Beer beer2 = Beer.builder()
+        BeerDTO beer2 = BeerDTO.builder()
                 .id(UUID.randomUUID())
                 .beerName("33 Export")
                 .beerStyle(BeerStyle.MALTED)
@@ -39,7 +39,7 @@ public class BeerServiceImpl implements BeerService {
                 .creationDate(LocalDateTime.now())
                 .updateDate(LocalDateTime.now())
                 .build();
-        Beer beer3 = Beer.builder()
+        BeerDTO beer3 = BeerDTO.builder()
                 .id(UUID.randomUUID())
                 .beerName("Booster Cola")
                 .beerStyle(BeerStyle.WHISKIED)
@@ -56,22 +56,21 @@ public class BeerServiceImpl implements BeerService {
     }
 
     @Override
-    public Optional<List<Beer>> listBeers() {
-        return Optional.of(new ArrayList<>(beerMap.values()));
+    public List<BeerDTO> listBeers() {
+        return new ArrayList<>(beerMap.values());
     }
 
 
     @Override
-    public Optional<Beer> getBeerById(UUID id) {
-
+    public Optional<BeerDTO> getBeerById(UUID id) {
         log.debug("The method getBeerById has been called with id: " + id);
         return Optional.ofNullable(beerMap.get(id));
     }
 
     @Override
-    public Beer saveNewBeer(Beer beer) {
+    public BeerDTO saveNewBeer(BeerDTO beer) {
         Objects.requireNonNull(beer,"The beer to save should not be null.");
-        Beer savedBeer = Beer.builder()
+        BeerDTO savedBeer = BeerDTO.builder()
                 .id(UUID.randomUUID())
                 .creationDate(LocalDateTime.now())
                 .updateDate(LocalDateTime.now())
@@ -88,9 +87,9 @@ public class BeerServiceImpl implements BeerService {
     }
 
     @Override
-    public void updateBeer(UUID id, Beer beer){
-        Beer former = beerMap.get(id);
-        Beer savedBeer = Beer.builder()
+    public Optional<BeerDTO> updateBeer(UUID id, BeerDTO beer){
+        BeerDTO former = beerMap.get(id);
+        BeerDTO savedBeer = BeerDTO.builder()
                 .id(beer.getId())
                 .creationDate(former.getCreationDate())
                 .updateDate(LocalDateTime.now())
@@ -102,6 +101,7 @@ public class BeerServiceImpl implements BeerService {
                 .upc(beer.getUpc())
                 .build();
         beerMap.put(savedBeer.getId(), savedBeer);
+        return Optional.of(savedBeer);
     }
 
     @Override
@@ -110,8 +110,8 @@ public class BeerServiceImpl implements BeerService {
     }
 
     @Override
-    public void patchBeerById(UUID id, Beer beer1) {
-        Beer existingBeer = beerMap.get(id);
+    public void patchBeerById(UUID id, BeerDTO beer1) {
+        BeerDTO existingBeer = beerMap.get(id);
         if(existingBeer!=null){
             if(StringUtils.hasText(beer1.getBeerName())){
                 existingBeer.setBeerName(beer1.getBeerName());

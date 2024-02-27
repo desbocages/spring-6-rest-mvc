@@ -1,7 +1,7 @@
 package guru.springframework.spring6webmvc.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import guru.springframework.spring6webmvc.domain.Beer;
+import guru.springframework.spring6webmvc.domain.BeerDTO;
 import guru.springframework.spring6webmvc.services.BeerService;
 import guru.springframework.spring6webmvc.services.BeerServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,7 +42,7 @@ public class BeerControllerMVCTest {
     ArgumentCaptor<UUID> argumentCaptor;
 
     @Captor
-    ArgumentCaptor<Beer> beerArgumentCaptor;
+    ArgumentCaptor<BeerDTO> beerArgumentCaptor;
 
     @BeforeEach
     void setUp() {
@@ -59,7 +59,7 @@ public class BeerControllerMVCTest {
 
     @Test
     void testGetBeerById() throws Exception {
-        Beer mockBeer = getList().get(0);
+        BeerDTO mockBeer = getList().get(0);
         given(beerService.getBeerById(mockBeer.getId())).willReturn(Optional.of(mockBeer));
         mockMvc.perform(get(
                         BEER_VAR_PATH_ID, mockBeer.getId())
@@ -80,15 +80,15 @@ public class BeerControllerMVCTest {
                         is(getList().size())));
     }
 
-    List<Beer> getList(){
-        return ((Optional<List<Beer>>)beerServiceImpl.listBeers()).get();
+    List<BeerDTO> getList(){
+        return beerServiceImpl.listBeers();
     }
     @Test
     void testCreateNewBeer() throws Exception {
-        Beer aux = getList().get(0);
+        BeerDTO aux = getList().get(0);
         aux.setId(null);
         aux.setVersion(null);
-        given(beerService.saveNewBeer(any(Beer.class))).willReturn(getList().get(1));
+        given(beerService.saveNewBeer(any(BeerDTO.class))).willReturn(getList().get(1));
         mockMvc.perform(post(BEER_BASE_PATH).accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(aux)))
@@ -98,19 +98,19 @@ public class BeerControllerMVCTest {
 
     @Test
     void testUpdateBeer() throws Exception {
-        Beer aux = getList().get(0);
+        BeerDTO aux = getList().get(0);
         //given(beerService.updateBeer(aux.getId(),aux)).willReturn(null);
         mockMvc.perform(put(BEER_VAR_PATH_ID,aux.getId())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(aux)))
                 .andExpect(status().isNoContent());
-        verify(beerService).updateBeer(any(UUID.class),any(Beer.class));
+        verify(beerService).updateBeer(any(UUID.class),any(BeerDTO.class));
     }
 
     @Test
     void testDeleteBeerById() throws Exception {
-        Beer beer = getList().get(0);
+        BeerDTO beer = getList().get(0);
         mockMvc.perform(delete(BEER_VAR_PATH_ID,beer.getId())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
@@ -120,7 +120,7 @@ public class BeerControllerMVCTest {
 
     @Test
     void testPatchBeerById() throws Exception {
-        Beer beer = beerServiceImpl.listBeers().get().get(0);
+        BeerDTO beer = beerServiceImpl.listBeers().get(0);
         Map<String,String> params = new HashMap<>();
         params.put("beerName","New beer name");
         mockMvc.perform(patch(BEER_VAR_PATH_ID,beer.getId())
