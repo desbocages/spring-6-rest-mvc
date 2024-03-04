@@ -1,5 +1,6 @@
 package guru.springframework.spring6webmvc.services;
 
+import guru.springframework.spring6webmvc.controllers.NotfoundException;
 import guru.springframework.spring6webmvc.domain.BeerDTO;
 import guru.springframework.spring6webmvc.domain.entities.Beer;
 import guru.springframework.spring6webmvc.mappers.BeerMapper;
@@ -7,6 +8,7 @@ import guru.springframework.spring6webmvc.repositories.BeerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -63,12 +65,37 @@ public class BeerServiceJPAImpl implements BeerService {
     }
 
     @Override
-    public void deleteById(UUID id) {
-        beerRepository.deleteById(id);
+    public boolean deleteById(UUID id) {
+        if (beerRepository.existsById(id)) {
+            beerRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 
     @Override
-    public void patchBeerById(UUID id, BeerDTO beer1) {
+    public void patchBeerById(UUID beerId, BeerDTO beer1) {
+        AtomicReference<Optional<BeerDTO>> atomicReference = new AtomicReference<>();
 
+        beerRepository.findById(beerId).ifPresentOrElse(existingBeer -> {
+
+            if(StringUtils.hasText(beer1.getBeerName())){
+                existingBeer.setBeerName(beer1.getBeerName());
+            }
+            if(beer1.getBeerStyle()!=null){
+                existingBeer.setBeerStyle(beer1.getBeerStyle());
+            }
+            if(beer1.getPrice()!=null){
+                existingBeer.setPrice(beer1.getPrice());
+            }
+            if(StringUtils.hasText(beer1.getUpc())){
+                existingBeer.setUpc(beer1.getUpc());
+            }
+        atomicReference.set(Optional.of(beerMapper
+                .beerToBeerDTO(beerRepository.save(existingBeer))));
+    }, () -> {
+        atomicReference.set(Optional.empty());
+    });
+        }
     }
-}
+

@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,7 +40,7 @@ public class BeerController {
     }
 
     @PostMapping(BEER_BASE_PATH)
-    public ResponseEntity saveNewBeer(@RequestBody BeerDTO beer){
+    public ResponseEntity saveNewBeer(@Validated @RequestBody BeerDTO beer){
         BeerDTO b = beerService.saveNewBeer(beer);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location",BEER_BASE_PATH+b.getId());
